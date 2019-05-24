@@ -30,7 +30,7 @@
 		}
 
 		foreach ( $object_to_check as $key => $value ) {
-			// Seeking for for the entry of Class name or asterisk
+			// Seeking for the entry of Class name or asterisk
 			$is_own_property     = false;
 			$class_name_position = $parent_class_name === false ? false : strpos( $key, $parent_class_name );
 
