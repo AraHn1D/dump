@@ -268,6 +268,9 @@ JS;
 
 				$pre_backtrace .= '( ' . implode( ', ', $caller_argument_types ) . ' )';
 			}
+			else {
+				$pre_backtrace .= '()';
+			}
 
 			$pre_backtrace .= $index > 0 ? PHP_EOL : '';
 		}
