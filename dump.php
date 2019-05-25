@@ -4,6 +4,7 @@
 	 *
 	 * @author  Yury Marty (AraHnID)
 	 * @package dump
+	 * @link    https://github.com/AraHn1D/dump/
 	 */
 
 	/**
@@ -174,8 +175,35 @@
 	 */
 	function d( $expression, $_ = null ) {
 		$arguments = func_get_args();
+		$styles    = <<<CSS
+		pre.dump {
+			font-size   : 12px;
+			font-style  : normal;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+			line-height : 14px;
+			padding     : 10px 15px;
+			text-align  : left;
+			white-space : pre-wrap;
+		}
+		
+		pre.dump span {
+			font-style  : normal;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+		}
+		
+		pre.dump em {
+			font-style  : italic;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+		}
+		
+		pre.dump strong {
+			font-weight : bold;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+		}
+CSS;
 
-		echo '<pre style="font: 12px/14px Menlo, monaco, Consolas, Lucida Console, monospace;margin: 10px 15px;text-align: left;white-space: pre-wrap;">';
+		echo '<pre class="dump">';
+		echo '<style>' . $styles . '</style>';
 
 		foreach ( $arguments as $index => $argument ) {
 			if ( is_array( $argument ) ) {
@@ -226,7 +254,10 @@ JS;
 		$pre_backtrace = '<div style="border-left: 2px solid #202023;padding-left: 6px">';
 
 		for ( $index = $backtrace_length - 1, $single_trace = $backtrace[ $index ]; $index >= 0; $single_trace = $backtrace[ --$index ] ) {
-			$pre_backtrace .= $backtrace_length - $index . '. ' . $single_trace[ 'file' ] . ' ( <strong>' . $single_trace[ 'line' ] . '</strong> ) in <span style="font-style: italic;font-weight: 600;color: #1669aa;">f</span> ' . $single_trace[ 'function' ];
+			$pre_backtrace .= $backtrace_length - $index . '. ';
+			$pre_backtrace .= isset( $single_trace[ 'file' ] ) ? $single_trace[ 'file' ] . ' ' : '';
+			$pre_backtrace .= isset( $single_trace[ 'line' ] ) ? '( <strong>' . $single_trace[ 'line' ] . '</strong> ) ' : '';
+			$pre_backtrace .= isset( $single_trace[ 'function' ] ) ? 'in <span style="font-style: italic;font-weight: 600;color: #1669aa;">f</span> ' . $single_trace[ 'function' ] : '';
 
 			if ( !empty( $single_trace[ 'args' ] ) ) {
 				$caller_argument_types = [];
@@ -245,7 +276,35 @@ JS;
 
 		$pre_backtrace .= PHP_EOL;
 
-		echo '<pre style="font: 12px/14px Menlo, monaco, Consolas, Lucida Console, monospace;margin: 10px 15px;text-align: left;white-space: pre-wrap;">';
+		$styles = <<<CSS
+		pre.dump {
+			font-size   : 12px;
+			font-style  : normal;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+			line-height : 14px;
+			padding     : 10px 15px;
+			text-align  : left;
+			white-space : pre-wrap;
+		}
+		
+		pre.dump span {
+			font-style  : normal;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+		}
+		
+		pre.dump em {
+			font-style  : italic;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+		}
+		
+		pre.dump strong {
+			font-weight : bold;
+			font-family : Menlo, Monaco, Consolas, Lucida Console, monospace;
+		}
+CSS;
+
+		echo '<pre class="dump">';
+		echo '<style>' . $styles . '</style>';
 		echo $pre_backtrace;
 
 		foreach ( $arguments as $index => $argument ) {
