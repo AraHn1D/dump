@@ -8,20 +8,79 @@
 	 */
 
 	/**
+	 * This constant can be as int or null
+	 * "int" means that dump will cut the depth determined by this constant
+	 * "null" means that dump won't cut the depth
+	 * @var int|null DUMP_DEPTH_LEVEL
+	 */
+	const DUMP_DEPTH_LEVEL = null;
+
+	/**
 	 * Function prepares object to dump
 	 *
 	 * @param object $object
 	 * @param int    $depth
+	 * @param int    $level
 	 *
 	 * @return string
 	 */
-	function prepare_object_argument( $object, $depth = 1 ) {
+	function prepare_object_argument( $object, $depth = 1, $level = DUMP_DEPTH_LEVEL ) {
 		$object_to_check   = (array) $object;
 		$class_name        = get_class( $object );
 		$parent_class_name = get_parent_class( $object );
 		$object_amount     = count( $object_to_check );
 		$html_id           = hash( 'sha256', rand( 000000000000000, 999999999999999 ) );
 		$code_space        = '   ';
+
+		if ( $object instanceof Closure ) {
+			try {
+				$reflection = new ReflectionFunction( $object );
+			}
+			catch ( ReflectionException $reflection_exception ) {
+				return 'function() {/* Error: unable to determine Closure source */}';
+			}
+
+			$fileName = $reflection -> getFileName();
+			$start    = $reflection -> getStartLine();
+			$end      = $reflection -> getEndLine();
+
+			if ( $fileName === false || $start === false || $end === false ) {
+				return 'function() {/* Error: unable to determine Closure source */}';
+			}
+
+			--$start;
+
+			$source = implode( "\n", array_slice( file( $fileName ), $start, $end - $start ) );
+			$tokens = token_get_all( '<?php ' . $source );
+			array_shift( $tokens );
+
+			$closureTokens           = [];
+			$pendingParenthesisCount = 0;
+			foreach ( $tokens as $token ) {
+				if ( isset( $token[ 0 ] ) && $token[ 0 ] === T_FUNCTION ) {
+					$closureTokens[] = $token[ 1 ];
+					continue;
+				}
+				if ( $closureTokens !== [] ) {
+					$closureTokens[] = isset( $token[ 1 ] ) ? $token[ 1 ] : $token;
+					if ( $token === '}' ) {
+						$pendingParenthesisCount--;
+						if ( $pendingParenthesisCount === 0 ) {
+							break;
+						}
+					}
+					else if ( $token === '{' ) {
+						$pendingParenthesisCount++;
+					}
+				}
+			}
+
+			return prepare_simple_argument( implode( '', $closureTokens ) );
+		}
+
+		if ( $level !== null && $depth >= (int) $level ) {
+			return $class_name . ' ( ' . $object_amount . ' ) <em>{...}</em>';
+		}
 
 		$output = $object_amount > 0 ? '<span style="cursor: pointer;" data-id="' . $html_id . '" onclick="clickableObjectHandler(this);">' . $class_name . ' ( ' . $object_amount . ' )' : $class_name . ' ( ' . $object_amount . ' )';
 		$output .= $object_amount > 0 ? ' <em>{...}</em> {</span>' : ' <em>{}</em>';
@@ -84,13 +143,18 @@
 	 *
 	 * @param array $array
 	 * @param int   $depth
+	 * @param int   $level
 	 *
 	 * @return string
 	 */
-	function prepare_array_argument( $array, $depth = 1 ) {
+	function prepare_array_argument( $array, $depth = 1, $level = DUMP_DEPTH_LEVEL ) {
 		$array_amount = count( $array );
 		$html_id      = hash( 'sha256', rand( 000000000000000, 999999999999999 ) );
 		$code_space   = '   ';
+
+		if ( $level !== null && $depth >= (int) $level ) {
+			return '( ' . $array_amount . ' ) <em>[...]</em>';
+		}
 
 		$output = $array_amount > 0 ? '<span style="cursor: pointer;" data-id="' . $html_id . '" onclick="clickableObjectHandler(this);">' : '';
 		$output .= $array_amount > 0 ? '( ' . $array_amount . ' )' : '( ' . $array_amount . ' )';
