@@ -16,21 +16,25 @@
 	define( 'DUMP_DEPTH_LEVEL', null );
 
 	/**
+	 * This constant defines amount of spaces for arrays and objects output
+	 * @var string DUMP_CODE_SPACE
+	 */
+	define( 'DUMP_CODE_SPACE', '   ' );
+
+	/**
 	 * Function prepares object to dump
 	 *
 	 * @param object $object
 	 * @param int    $depth
-	 * @param int    $level
 	 *
 	 * @return string
 	 */
-	function prepare_object_argument( $object, $depth = 1, $level = DUMP_DEPTH_LEVEL ) {
+	function prepare_object_argument( $object, $depth = 1 ) {
 		$object_to_check   = (array) $object;
 		$class_name        = get_class( $object );
 		$parent_class_name = get_parent_class( $object );
 		$object_amount     = count( $object_to_check );
 		$html_id           = hash( 'sha256', rand( 000000000000000, 999999999999999 ) );
-		$code_space        = '   ';
 
 		if ( $object instanceof Closure ) {
 			try {
@@ -78,7 +82,7 @@
 			return prepare_simple_argument( implode( '', $closureTokens ) );
 		}
 
-		if ( $level !== null && $depth >= (int) $level ) {
+		if ( DUMP_DEPTH_LEVEL !== null && $depth >= (int) DUMP_DEPTH_LEVEL ) {
 			return $class_name . ' ( ' . $object_amount . ' ) <em>{...}</em>';
 		}
 
@@ -120,7 +124,7 @@
 				$property_visibility = '<span style="color: #92008d;font-style: italic;">public</span> ';
 			}
 
-			$output .= PHP_EOL . str_repeat( $code_space, $depth ) . $property_visibility . '[ ' . $key_additional . '<span style="color: #92008d;">' . $key . '</span>' . $key_additional . ' ] => ' . prepare_simple_argument( $value );
+			$output .= PHP_EOL . str_repeat( DUMP_CODE_SPACE, $depth ) . $property_visibility . '[ ' . $key_additional . '<span style="color: #92008d;">' . $key . '</span>' . $key_additional . ' ] => ' . prepare_simple_argument( $value );
 
 			if ( is_array( $value ) ) {
 				$output .= prepare_array_argument( $value, $depth + 1 );
@@ -132,7 +136,7 @@
 		}
 
 		if ( $object_amount > 0 ) {
-			$output .= PHP_EOL . str_repeat( $code_space, $depth - 1 ) . '</span>}';
+			$output .= PHP_EOL . str_repeat( DUMP_CODE_SPACE, $depth - 1 ) . '</span>}';
 		}
 
 		return $output;
@@ -143,16 +147,14 @@
 	 *
 	 * @param array $array
 	 * @param int   $depth
-	 * @param int   $level
 	 *
 	 * @return string
 	 */
-	function prepare_array_argument( $array, $depth = 1, $level = DUMP_DEPTH_LEVEL ) {
+	function prepare_array_argument( $array, $depth = 1 ) {
 		$array_amount = count( $array );
 		$html_id      = hash( 'sha256', rand( 000000000000000, 999999999999999 ) );
-		$code_space   = '   ';
 
-		if ( $level !== null && $depth >= (int) $level ) {
+		if ( DUMP_DEPTH_LEVEL !== null && $depth >= (int) DUMP_DEPTH_LEVEL ) {
 			return '( ' . $array_amount . ' ) <em>[...]</em>';
 		}
 
@@ -167,7 +169,7 @@
 		foreach ( $array as $key => $value ) {
 			$key_additional = is_string( $key ) ? "'" : '';
 
-			$output .= PHP_EOL . str_repeat( $code_space, $depth ) . '[ ' . $key_additional . '<span style="color: #92008d;">' . $key . '</span>' . $key_additional . ' ] => ' . prepare_simple_argument( $value );
+			$output .= PHP_EOL . str_repeat( DUMP_CODE_SPACE, $depth ) . '[ ' . $key_additional . '<span style="color: #92008d;">' . $key . '</span>' . $key_additional . ' ] => ' . prepare_simple_argument( $value );
 
 			if ( is_array( $value ) ) {
 				$output .= prepare_array_argument( $value, $depth + 1 );
@@ -179,7 +181,7 @@
 		}
 
 		if ( $array_amount > 0 ) {
-			$output .= PHP_EOL . str_repeat( $code_space, $depth - 1 ) . '</span>}';
+			$output .= PHP_EOL . str_repeat( DUMP_CODE_SPACE, $depth - 1 ) . '</span>}';
 		}
 
 		return $output;
