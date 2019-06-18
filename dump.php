@@ -13,7 +13,7 @@
 	 * "null" means that dump won't cut the depth
 	 * @var int|null DUMP_DEPTH_LEVEL
 	 */
-	const DUMP_DEPTH_LEVEL = null;
+	define( 'DUMP_DEPTH_LEVEL', null );
 
 	/**
 	 * Function prepares object to dump
