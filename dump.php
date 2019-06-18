@@ -54,7 +54,7 @@
 
 			--$start;
 
-			$source = implode( "\n", array_slice( file( $fileName ), $start, $end - $start ) );
+			$source = implode( PHP_EOL, array_slice( file( $fileName ), $start, $end - $start ) );
 			$tokens = token_get_all( '<?php ' . $source );
 			array_shift( $tokens );
 
