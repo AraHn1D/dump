@@ -214,17 +214,19 @@
 				break;
 			case 'string':
 				$color  = '#1f6c53';
-				$output .= 'string( ' . strlen( $argument ) . ' ) ' . '\'' . '<span style="color:' . $color . '">' . strip_tags( $argument ) . '</span>' . '\'';
+				$output .= 'string( ' . strlen( $argument ) . ' ) ' . '\'' . '<span style="color:' . $color . '">' . htmlspecialchars( $argument ) . '</span>' . '\'';
 				break;
 			case 'resource':
-				$output .= '{resource}';
+				$color = '#6a149a';
+				$output .= '{ <span style="color:' . $color . '">resource</span> }';
 				break;
 			case 'NULL':
 				$color  = '#92008d';
 				$output .= '<span style="color:' . $color . '">NULL</span>';
 				break;
 			case 'unknown type':
-				$output .= '{unknown}';
+				$color = '#606060';
+				$output .= '{ <span style="color:' . $color . '">unknown</span> }';
 				break;
 		}
 
@@ -319,10 +321,12 @@ JS;
 
 		$pre_backtrace = '<div style="border-left: 2px solid #202023;padding-left: 6px">';
 
-		for ( $index = $backtrace_length - 1, $single_trace = $backtrace[ $index ]; $index >= 0; $single_trace = $backtrace[ --$index ] ) {
+		for ( $index = $backtrace_length - 1; $index >= 0; $index-- ) {
+			$single_trace = $backtrace[ $index ];
+
 			$pre_backtrace .= $backtrace_length - $index . '. ';
-			$pre_backtrace .= isset( $single_trace[ 'file' ] ) ? $single_trace[ 'file' ] . ' ' : '';
-			$pre_backtrace .= isset( $single_trace[ 'line' ] ) ? '( <strong>' . $single_trace[ 'line' ] . '</strong> ) ' : '';
+			$pre_backtrace .= isset( $single_trace[ 'file' ] ) ? $single_trace[ 'file' ] : '';
+			$pre_backtrace .= isset( $single_trace[ 'line' ] ) ? ':<strong>' . $single_trace[ 'line' ] . '</strong> ' : '';
 			$pre_backtrace .= isset( $single_trace[ 'function' ] ) ? 'in <span style="font-style: italic;font-weight: 600;color: #1669aa;">f</span> ' . $single_trace[ 'function' ] : '';
 
 			if ( !empty( $single_trace[ 'args' ] ) ) {
@@ -339,6 +343,10 @@ JS;
 			}
 
 			$pre_backtrace .= $index > 0 ? PHP_EOL : '';
+
+			if ( $index === 0 ) {
+				break;
+			}
 		}
 
 		$pre_backtrace .= '</div>';
